@@ -6,18 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "order_line")
+@Table(name = "items")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderLine {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String skuCode;
-    private List<OrderLine> orderLines;
+    private BigDecimal price;
+    private Integer quantity;
 }

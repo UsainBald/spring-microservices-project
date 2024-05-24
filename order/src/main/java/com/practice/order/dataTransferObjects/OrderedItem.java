@@ -1,13 +1,16 @@
 package com.practice.order.dataTransferObjects;
 
-import com.practice.order.models.Item;
+import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderedItems {
-    
+public class OrderedItem {
+    private Long id;
+    private String skuCode;
+    private BigDecimal price;
+    private Integer quantity;
 }
