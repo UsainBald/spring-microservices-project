@@ -1,2 +1,17 @@
-package com.practice.product.dataTransferObjects;public class ProductRequest {
+package com.practice.product.dataTransferObjects;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ProductRequest {
+  private String name;
+  private String description;
+  private BigDecimal price;
 }
+
