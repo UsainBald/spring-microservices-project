@@ -24,42 +24,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ProductApplicationTests {
 
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0.9");
+  @Container
+  static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0.9");
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Autowired
-    private Gson gson;
+  @Autowired
+  private Gson gson;
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
-        dynamicPropertyRegistry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-    }
+  @DynamicPropertySource
+  static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
+    dynamicPropertyRegistry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+  }
 
-    @Test
-    void createProduct() throws Exception {
-        ProductRequest productRequest = getProductRequest();
-        String productRequestString = gson.toJson(productRequest);
+  @Test
+  void createProduct() throws Exception {
+    ProductRequest productRequest = getProductRequest();
+    String productRequestString = gson.toJson(productRequest);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(productRequestString))
-                .andExpect(status().isCreated());
-    }
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(productRequestString))
+        .andExpect(status().isCreated());
+  }
 
-    private ProductRequest getProductRequest() {
-        return ProductRequest.builder()
-                .name("Iphone 13")
-                .description("Iphone 13")
-                .price(BigDecimal.valueOf(1200))
-                .build();
-    }
+  private ProductRequest getProductRequest() {
+    return ProductRequest.builder()
+        .name("Iphone 13")
+        .description("Iphone 13")
+        .price(BigDecimal.valueOf(1200))
+        .build();
+  }
 
-    @Test
-    void getAllProducts() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/product"))
-                .andExpect(status().isOk());
-    }
+  @Test
+  void getAllProducts() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/product"))
+        .andExpect(status().isOk());
+  }
 }
