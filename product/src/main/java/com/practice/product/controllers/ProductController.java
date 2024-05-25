@@ -2,7 +2,6 @@ package com.practice.product.controllers;
 
 import com.practice.product.dataTransferObjects.ProductRequest;
 import com.practice.product.dataTransferObjects.ProductResponse;
-import com.practice.product.models.Product;
 import com.practice.product.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

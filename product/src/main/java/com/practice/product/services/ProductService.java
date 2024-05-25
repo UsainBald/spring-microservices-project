@@ -5,7 +5,6 @@ import com.practice.product.dataTransferObjects.ProductResponse;
 import com.practice.product.models.Product;
 import com.practice.product.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,7 @@ import java.util.List;
 public class ProductService {
 
   private final ProductRepository productRepository;
+
   public void createProduct(ProductRequest productRequest) {
     Product product = Product.builder()
         .name(productRequest.getName())

@@ -15,12 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String orderNumber;
+  private String orderNumber;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Item> items;
+  @OneToMany(cascade = CascadeType.ALL)
+  private List<Item> items;
 }

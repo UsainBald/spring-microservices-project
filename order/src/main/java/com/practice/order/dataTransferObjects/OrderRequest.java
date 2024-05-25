@@ -1,7 +1,8 @@
 package com.practice.order.dataTransferObjects;
 
-import com.practice.order.models.Item;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -9,5 +10,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRequest {
-    private List<OrderedItem> orderedItems;
+  private List<OrderedItem> orderedItems;
 }
