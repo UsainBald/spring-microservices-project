@@ -10,6 +10,7 @@ import com.practice.order.dataTransferObjects.OrderRequest;
 import com.practice.order.dataTransferObjects.OrderedItem;
 import com.practice.order.models.Item;
 import com.practice.order.models.Order;
+import com.practice.order.orders.OrderPlacedEvent;
 import com.practice.order.repositories.OrderRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -37,7 +38,7 @@ public class OrderService {
   private final WebClient.Builder webClient;
   private final Gson gson;
   private final Tracer tracer;
-  private final KafkaTemplate kafkaTemplate;
+  private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
   public CompletableFuture<Boolean> fallbackMethod(OrderRequest orderRequest, RuntimeException runtimeException) {
     log.error(runtimeException.getMessage(), runtimeException);
@@ -63,6 +64,7 @@ public class OrderService {
 
     order.setItems(items);
 
+    kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
     List<InventoryRequest> inventoryRequests = orderRequest.getOrderedItems()
         .stream()
         .map(this::mapOrderRequestToInventoryRequest)
@@ -96,9 +98,8 @@ public class OrderService {
 
       boolean allInStock = itemList.stream()
           .allMatch(InventoryResponse::getAvailable);
-
       if (allInStock) {
-        kafkaTemplate.send("notificationTopic", order.getOrderNumber());
+        kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
         orderRepository.save(order);
       }
 

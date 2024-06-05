@@ -1,4 +1,4 @@
-package com.practice.order.orders;
+package com.practice.notification.orders;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
