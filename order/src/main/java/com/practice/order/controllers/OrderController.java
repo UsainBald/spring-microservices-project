@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/order")
@@ -17,10 +17,14 @@ public class OrderController {
   private final OrderService orderService;
 
   @PostMapping
-  public ResponseEntity<?> createOrder(@RequestBody OrderRequest order) {
-    if (orderService.createOrder(order)) {
-      return new ResponseEntity<>("Order created successfully!", HttpStatus.CREATED);
-    }
-    return new ResponseEntity<>("Order creation failed!", HttpStatus.INTERNAL_SERVER_ERROR);
+  public CompletableFuture<ResponseEntity<String>> createOrder(@RequestBody OrderRequest order) {
+    return orderService.createOrder(order)
+        .thenApply(orderCreated -> {
+          if (orderCreated) {
+            return new ResponseEntity<>("Order created successfully!", HttpStatus.CREATED);
+          } else {
+            return new ResponseEntity<>("Order creation failed!", HttpStatus.INTERNAL_SERVER_ERROR);
+          }
+        });
   }
 }

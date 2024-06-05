@@ -7,6 +7,10 @@ import com.practice.inventory.modules.Inventory;
 import com.practice.inventory.dataTransferObjects.InventoryResponse;
 import com.practice.inventory.repositories.InventoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +20,15 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InventoryService {
   private final InventoryRepository inventoryRepository;
 
   private final Gson gson;
 
   @Transactional(readOnly = true)
-  public String isInStock(List<InventoryRequest> itemList) {
+  public String isInStock(List<InventoryRequest> itemList){
+
 
     List<InventoryResponse> responseList = new ArrayList<>();
     if (itemList == null || itemList.isEmpty()) {
