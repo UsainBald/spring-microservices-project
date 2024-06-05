@@ -1,5 +1,7 @@
 package com.practice.order.services;
 
+import brave.Span;
+import brave.Tracer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.practice.order.dataTransferObjects.InventoryRequest;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,6 +36,8 @@ public class OrderService {
   private final OrderRepository orderRepository;
   private final WebClient.Builder webClient;
   private final Gson gson;
+  private final Tracer tracer;
+  private final KafkaTemplate kafkaTemplate;
 
   public CompletableFuture<Boolean> fallbackMethod(OrderRequest orderRequest, RuntimeException runtimeException) {
     log.error(runtimeException.getMessage(), runtimeException);
@@ -65,13 +70,19 @@ public class OrderService {
 
     String inventoryRequestsJson = gson.toJson(inventoryRequests);
 
-    CompletableFuture<String> resultFuture = webClient.build().post()
-        .uri("http://inventory/api/inventory")
-        .contentType(MediaType.APPLICATION_JSON)
-        .bodyValue(inventoryRequestsJson)
-        .retrieve()
-        .bodyToMono(String.class)
-        .toFuture();
+    Span newSpan = tracer.nextSpan().name("CreateOrder").start();
+    CompletableFuture<String> resultFuture;
+    try (Tracer.SpanInScope ws = tracer.withSpanInScope(newSpan)) {
+      resultFuture = webClient.build().post()
+          .uri("http://inventory/api/inventory")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(inventoryRequestsJson)
+          .retrieve()
+          .bodyToMono(String.class)
+          .toFuture();
+    } finally {
+      newSpan.finish();
+    }
 
     return resultFuture.thenApply(result -> {
       System.out.println(result);
@@ -80,12 +91,14 @@ public class OrderService {
         return false;
       }
 
-      List<InventoryResponse> itemList = gson.fromJson(result, new TypeToken<List<InventoryResponse>>() {}.getType());
+      List<InventoryResponse> itemList = gson.fromJson(result, new TypeToken<List<InventoryResponse>>() {
+      }.getType());
 
       boolean allInStock = itemList.stream()
           .allMatch(InventoryResponse::getAvailable);
 
       if (allInStock) {
+        kafkaTemplate.send("notificationTopic", order.getOrderNumber());
         orderRepository.save(order);
       }
 
